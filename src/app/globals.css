@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-cream: #FDF6E3;
+  --color-cork: #C4956A;
+  --color-cork-dark: #A67B5B;
+  --color-wood: #8B6914;
+  --color-wood-dark: #6B4F12;
+  --color-brown-text: #3E2723;
+  --color-pushpin: #D32F2F;
+  --color-heart: #E91E63;
+  --color-warm-brown: #795548;
+  --font-serif: var(--font-playfair);
+  --font-handwriting: var(--font-caveat);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background-color: #FDF6E3;
+  color: #3E2723;
+  min-height: 100vh;
+}
