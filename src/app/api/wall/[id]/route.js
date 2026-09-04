@@ -7,6 +7,13 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { team_name, member1_name, member1_student_id, member2_name, member2_student_id, message, photo_url } = body;
 
+    if (!team_name?.trim() || !member1_name?.trim() || !member1_student_id?.trim()) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const m2Name = member2_name?.trim() || "";
+    const m2StudentId = member2_student_id?.trim() || "";
+
     const result = await query(
       `UPDATE cards
        SET team_name = $1, member1_name = $2, member1_student_id = $3,
@@ -14,7 +21,7 @@ export async function PUT(request, { params }) {
            photo_url = COALESCE($7, photo_url), updated_at = CURRENT_TIMESTAMP
        WHERE id = $8
        RETURNING *`,
-      [team_name, member1_name, member1_student_id, member2_name, member2_student_id, message, photo_url, id]
+      [team_name.trim(), member1_name.trim(), member1_student_id.trim(), m2Name, m2StudentId, message?.trim() || "", photo_url, id]
     );
 
     if (result.rows.length === 0) {
