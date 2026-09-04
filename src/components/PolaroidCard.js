@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, Pencil, Trash2, Clock, Users, Camera, ImageOff } from "lucide-react";
+import { Heart, Pencil, Trash2, Clock, Users, User, Camera, ImageOff } from "lucide-react";
 
 export default function PolaroidCard({
   card,
@@ -24,6 +24,7 @@ export default function PolaroidCard({
   });
 
   const hasValidPhoto = Boolean(card.photo_url && card.photo_url.trim() && !imageError);
+  const hasMember2 = Boolean(card.member2_name && card.member2_name.trim());
 
   return (
     <div
@@ -106,8 +107,10 @@ export default function PolaroidCard({
           <div className="space-y-3">
             <div className="border-b border-cork/30 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-brown-text">
-                <Users className="w-4 h-4 text-warm-brown" />
-                <span className="text-xs font-bold uppercase tracking-wider">Team Members</span>
+                {hasMember2 ? <Users className="w-4 h-4 text-warm-brown" /> : <User className="w-4 h-4 text-warm-brown" />}
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  {hasMember2 ? "Team Members" : "Member"}
+                </span>
               </div>
               <span className="text-[10px] text-brown-text/50 font-handwriting font-bold">#{card.id}</span>
             </div>
@@ -121,14 +124,16 @@ export default function PolaroidCard({
                   ID: {card.member1_student_id}
                 </span>
               </div>
-              <div className="border-t border-cork/10 pt-1 flex flex-col">
-                <span className="font-semibold text-brown-text flex items-center gap-1">
-                  👤 {card.member2_name}
-                </span>
-                <span className="text-[11px] text-brown-text/60 font-mono pl-4">
-                  ID: {card.member2_student_id}
-                </span>
-              </div>
+              {hasMember2 && (
+                <div className="border-t border-cork/10 pt-1 flex flex-col">
+                  <span className="font-semibold text-brown-text flex items-center gap-1">
+                    👤 {card.member2_name}
+                  </span>
+                  <span className="text-[11px] text-brown-text/60 font-mono pl-4">
+                    ID: {card.member2_student_id}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 text-brown-text/50 text-[11px]">
