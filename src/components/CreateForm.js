@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Camera, Upload, Pin, X, Link as LinkIcon, Loader2 } from "lucide-react";
+import { Camera, Upload, Pin, X, Link as LinkIcon, Loader2, User, Users } from "lucide-react";
 
 export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, onCancelEdit }) {
   const [formData, setFormData] = useState({
@@ -12,6 +12,7 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
     member2_student_id: "",
     message: "",
   });
+  const [memberCount, setMemberCount] = useState(2);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoMode, setPhotoMode] = useState("upload"); // "upload" | "url"
@@ -26,10 +27,12 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
         team_name: editingCard.team_name,
         member1_name: editingCard.member1_name,
         member1_student_id: editingCard.member1_student_id,
-        member2_name: editingCard.member2_name,
-        member2_student_id: editingCard.member2_student_id,
+        member2_name: editingCard.member2_name || "",
+        member2_student_id: editingCard.member2_student_id || "",
         message: editingCard.message || "",
       });
+      const hasMember2 = Boolean(editingCard.member2_name && editingCard.member2_name.trim());
+      setMemberCount(hasMember2 ? 2 : 1);
       if (editingCard.photo_url) {
         setPhotoPreview(editingCard.photo_url);
         setPhotoUrl(editingCard.photo_url);
@@ -99,6 +102,7 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
       member2_student_id: "",
       message: "",
     });
+    setMemberCount(2);
     setPhotoPreview(null);
     setPhotoUrl("");
     setError("");
@@ -121,7 +125,12 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
         }
       }
 
-      const payload = { ...formData, photo_url: finalPhotoUrl || "" };
+      const payload = {
+        ...formData,
+        member2_name: memberCount === 2 ? formData.member2_name : "",
+        member2_student_id: memberCount === 2 ? formData.member2_student_id : "",
+        photo_url: finalPhotoUrl || "",
+      };
 
       if (editingCard) {
         const res = await fetch(`/api/wall/${editingCard.id}`, {
@@ -182,10 +191,45 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
           />
         </div>
 
+        {/* Member Type Toggle */}
+        <div>
+          <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1.5">
+            Member Type / จำนวนสมาชิก
+          </label>
+          <div className="grid grid-cols-2 gap-2 p-1 bg-cork/15 rounded-lg border border-cork/20">
+            <button
+              type="button"
+              onClick={() => setMemberCount(1)}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                memberCount === 1
+                  ? "bg-warm-brown text-cream shadow-sm"
+                  : "text-brown-text/70 hover:text-brown-text"
+              }`}
+            >
+              <User className="w-4 h-4" />
+              1 Person (เดี่ยว)
+            </button>
+            <button
+              type="button"
+              onClick={() => setMemberCount(2)}
+              className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
+                memberCount === 2
+                  ? "bg-warm-brown text-cream shadow-sm"
+                  : "text-brown-text/70 hover:text-brown-text"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              2 People (คู่)
+            </button>
+          </div>
+        </div>
+
         {/* Member 1: Stack on mobile, side-by-side on tablet/desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
           <div>
-            <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Member 1 Name *</label>
+            <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">
+              {memberCount === 1 ? "Member Name *" : "Member 1 Name *"}
+            </label>
             <input
               type="text"
               name="member1_name"
@@ -211,32 +255,34 @@ export default function CreateForm({ onCardCreated, editingCard, onCardUpdated, 
         </div>
 
         {/* Member 2: Stack on mobile, side-by-side on tablet/desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Member 2 Name *</label>
-            <input
-              type="text"
-              name="member2_name"
-              value={formData.member2_name}
-              onChange={handleChange}
-              required
-              placeholder="Name"
-              className="w-full px-3 py-2 bg-white/70 border border-cork/30 rounded-lg text-sm text-brown-text placeholder:text-brown-text/30 focus:outline-none focus:ring-2 focus:ring-cork/50"
-            />
+        {memberCount === 2 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 animate-fadeIn">
+            <div>
+              <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Member 2 Name *</label>
+              <input
+                type="text"
+                name="member2_name"
+                value={formData.member2_name}
+                onChange={handleChange}
+                required
+                placeholder="Name"
+                className="w-full px-3 py-2 bg-white/70 border border-cork/30 rounded-lg text-sm text-brown-text placeholder:text-brown-text/30 focus:outline-none focus:ring-2 focus:ring-cork/50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Student ID *</label>
+              <input
+                type="text"
+                name="member2_student_id"
+                value={formData.member2_student_id}
+                onChange={handleChange}
+                required
+                placeholder="e.g. 64010002"
+                className="w-full px-3 py-2 bg-white/70 border border-cork/30 rounded-lg text-sm text-brown-text placeholder:text-brown-text/30 focus:outline-none focus:ring-2 focus:ring-cork/50"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Student ID *</label>
-            <input
-              type="text"
-              name="member2_student_id"
-              value={formData.member2_student_id}
-              onChange={handleChange}
-              required
-              placeholder="e.g. 64010002"
-              className="w-full px-3 py-2 bg-white/70 border border-cork/30 rounded-lg text-sm text-brown-text placeholder:text-brown-text/30 focus:outline-none focus:ring-2 focus:ring-cork/50"
-            />
-          </div>
-        </div>
+        )}
 
         <div>
           <label className="block text-xs sm:text-sm font-semibold text-brown-text mb-1">Message</label>
