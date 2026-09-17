@@ -13,7 +13,6 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   web:
-    build: .
     restart: always
     ports:
       - "${WEB_PORT:-3000}:3000"
